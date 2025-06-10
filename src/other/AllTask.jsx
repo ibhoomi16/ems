@@ -1,39 +1,68 @@
-import { Box, Paper, Typography } from '@mui/material';
-import React from 'react';
-const tasks = [
-  { name: 'Sarthak', title: 'Make a UI Design', status: 'Status', color: '#f87171' },  // red-400
-  { name: 'Sarthak', title: 'Make a UI Design', status: 'Status', color: '#4ade80' },  // green-400
-  { name: 'Sarthak', title: 'Make a UI Design', status: 'Status', color: '#facc15' },  // yellow-400
-  { name: 'Sarthak', title: 'Make a UI Design', status: 'Status', color: '#60a5fa' },  // blue-400
-  { name: 'Sarthak', title: 'Make a UI Design', status: 'Status', color: '#c084fc' },  // purple-400
-];
+import React, { useContext } from 'react';
+import { Box, Typography, Paper, Grid } from '@mui/material';
+import { AuthContext } from '../context/AuthProvider';
 
 const AllTask = () => {
+  const authData = useContext(AuthContext);
+  const employees = authData?.employees || [];
+
   return (
-    <Box sx={{ backgroundColor: '#1c1c1c', p: 2, borderRadius: 2, mt: 3 }}>
-      {tasks.map((task, index) => (
-        <Paper
-          key={index}
-          elevation={3}
-          sx={{
-            backgroundColor: task.color,
-            p: 2,
-            mb: 2,
-            display: 'flex',
-            justifyContent: 'space-between',
-            borderRadius: 2,
-          }}
-        >
-          <Box>
-            <Typography variant="h6">{task.name}</Typography>
-            <Typography variant="subtitle1">{task.title}</Typography>
-            <Typography variant="body2">{task.status}</Typography>
-          </Box>
-        </Paper>
-      ))}
+    <Box sx={{ backgroundColor: '#1c1c1c', p: 3, borderRadius: 2, mt: 4 }}>
+      {/* Header Row */}
+      <Paper elevation={3} sx={{ p: 2, mb: 2, backgroundColor: '#f87171' }}>
+        <Grid container spacing={2}>
+          <Grid item xs={2}>
+            <Typography align="center" fontWeight="bold" color="white">Employee Name</Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <Typography align="center" fontWeight="bold" color="white">New Task</Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <Typography align="center" fontWeight="bold" color="white">Active Task</Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <Typography align="center" fontWeight="bold" color="white">Completed</Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <Typography align="center" fontWeight="bold" color="white">Failed</Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* Employee Rows */}
+      {employees.map((emp, index) => {
+        const tasks = emp.tasks || [];
+        const counts = {
+          new: tasks.filter(task => task.status === 'new').length,
+          accepted: tasks.filter(task => task.status === 'accepted').length,
+          complete: tasks.filter(task => task.status === 'complete').length,
+          failed: tasks.filter(task => task.status === 'failed').length,
+        };
+
+        return (
+          <Paper key={index} elevation={2} sx={{ p: 2, mb: 2, backgroundColor: '#e57373' }}>
+            <Grid container spacing={2}>
+              <Grid item xs={2}>
+                <Typography align="center" color="white">{emp.firstName}</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography align="center" color="white">{counts.new}</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography align="center" color="white">{counts.accepted}</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography align="center" color="white">{counts.complete}</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography align="center" color="white">{counts.failed}</Typography>
+              </Grid>
+            </Grid>
+          </Paper>
+        );
+      })}
     </Box>
   );
 };
 
 export default AllTask;
-
