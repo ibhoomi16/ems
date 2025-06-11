@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Box, Typography, Paper, Grid, Chip, Divider } from '@mui/material';
 import { AuthContext } from '../context/AuthProvider';
 
-const AllTask = () => {
+const AllTask = ({ tasks: externalTasks = [] }) => {
   const authData = useContext(AuthContext);
   const employees = authData?.employees || [];
 
@@ -24,21 +24,24 @@ const AllTask = () => {
               >
                 {label}
               </Typography>
-          </Grid>
+            </Grid>
           ))}
         </Grid>
       </Paper>
 
       <Divider sx={{ mb: 2, borderColor: '#334155' }} />
 
-      {/* Employee Rows */}
+      {/* Merge tasks from context and props */}
       {employees.map((emp, index) => {
-        const tasks = emp.tasks || [];
+        const contextTasks = emp.tasks || [];
+        const extraTasks = externalTasks.filter(t => t.assignTo === emp.firstName);
+        const combinedTasks = [...contextTasks, ...extraTasks];
+
         const counts = {
-          new: tasks.filter(task => task.newTask).length,
-          active: tasks.filter(task => task.active).length,
-          complete: tasks.filter(task => task.completed).length,
-          failed: tasks.filter(task => task.failed).length,
+          new: combinedTasks.filter(task => task.newTask).length,
+          active: combinedTasks.filter(task => task.active).length,
+          complete: combinedTasks.filter(task => task.completed).length,
+          failed: combinedTasks.filter(task => task.failed).length,
         };
 
         return (
@@ -64,28 +67,16 @@ const AllTask = () => {
                 </Typography>
               </Grid>
               <Grid item xs={2}>
-                <Chip
-                  label={counts.new}
-                  sx={{ bgcolor: '#3b82f6', color: 'white', px: 2, fontWeight: 600 }}
-                />
+                <Chip label={counts.new} sx={{ bgcolor: '#3b82f6', color: 'white', px: 2, fontWeight: 600 }} />
               </Grid>
               <Grid item xs={2}>
-                <Chip
-                  label={counts.active}
-                  sx={{ bgcolor: '#facc15', color: 'black', px: 2, fontWeight: 600 }}
-                />
+                <Chip label={counts.active} sx={{ bgcolor: '#facc15', color: 'black', px: 2, fontWeight: 600 }} />
               </Grid>
               <Grid item xs={2}>
-                <Chip
-                  label={counts.complete}
-                  sx={{ bgcolor: '#22c55e', color: 'white', px: 2, fontWeight: 600 }}
-                />
+                <Chip label={counts.complete} sx={{ bgcolor: '#22c55e', color: 'white', px: 2, fontWeight: 600 }} />
               </Grid>
               <Grid item xs={2}>
-                <Chip
-                  label={counts.failed}
-                  sx={{ bgcolor: '#ef4444', color: 'white', px: 2, fontWeight: 600 }}
-                />
+                <Chip label={counts.failed} sx={{ bgcolor: '#ef4444', color: 'white', px: 2, fontWeight: 600 }} />
               </Grid>
             </Grid>
           </Paper>
