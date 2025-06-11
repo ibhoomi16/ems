@@ -12,7 +12,7 @@ const CreateTask = () => {
   const submitHandler = (e) => {
     e.preventDefault();
 
-    const newTask = {
+    const taskObj = {
       title: taskTitle,
       description: taskDescription,
       date: taskDate,
@@ -20,26 +20,44 @@ const CreateTask = () => {
       assignTo,
       active: false,
       newTask: true,
-      failed: true,
+      failed: false,
       completed: false,
     };
 
-    // Step 1: Get employees
+    setTask(taskObj);
+
+    // Get employees from localStorage
     let employees = JSON.parse(localStorage.getItem('employees')) || [];
 
-    // Step 2: Update task list for matching employee
+    // Update the relevant employee
     const updatedEmployees = employees.map((emp) => {
       if (emp.firstName.toLowerCase() === assignTo.toLowerCase()) {
-        const updatedTasks = emp.tasks ? [...emp.tasks, newTask] : [newTask];
-        return { ...emp, tasks: updatedTasks };
+        const updatedTasks = emp.tasks ? [...emp.tasks, taskObj] : [taskObj];
+
+        const updatedCounts = {
+          ...emp.taskCounts,
+          newTask: (emp.taskCounts?.newTask || 0) + 1,
+        };
+
+        const updatedSummary = {
+          ...emp.taskSummary,
+          newTask: (emp.taskSummary?.newTask || 0) + 1,
+        };
+
+        return {
+          ...emp,
+          tasks: updatedTasks,
+          taskCounts: updatedCounts,
+          taskSummary: updatedSummary,
+        };
       }
       return emp;
     });
 
-    // Step 3: Save back to localStorage
+    // Save to localStorage
     localStorage.setItem('employees', JSON.stringify(updatedEmployees));
 
-    // Step 4: Update loggedInUser if affected
+    // Update logged-in user if affected
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
     const matchedUser = updatedEmployees.find(
       emp => emp.firstName.toLowerCase() === assignTo.toLowerCase()
@@ -54,8 +72,7 @@ const CreateTask = () => {
       );
     }
 
-    // Step 5: Set task for debug, reset form
-    setTask(newTask);
+    // Reset form fields
     setTaskTitle('');
     setTaskDescription('');
     setTaskDate('');
@@ -93,9 +110,7 @@ const CreateTask = () => {
               sx={{ mt: 1, input: { color: 'white' } }}
             />
 
-            <Typography variant="h6" sx={{ mt: 3 }}>
-              Date
-            </Typography>
+            <Typography variant="h6" sx={{ mt: 3 }}>Date</Typography>
             <TextField
               fullWidth
               type="date"
@@ -104,9 +119,7 @@ const CreateTask = () => {
               sx={{ mt: 1, input: { color: 'white' } }}
             />
 
-            <Typography variant="h6" sx={{ mt: 3 }}>
-              Assign To
-            </Typography>
+            <Typography variant="h6" sx={{ mt: 3 }}>Assign To</Typography>
             <TextField
               fullWidth
               value={assignTo}
@@ -114,9 +127,7 @@ const CreateTask = () => {
               sx={{ mt: 1, input: { color: 'white' } }}
             />
 
-            <Typography variant="h6" sx={{ mt: 3 }}>
-              Category
-            </Typography>
+            <Typography variant="h6" sx={{ mt: 3 }}>Category</Typography>
             <TextField
               fullWidth
               value={category}
