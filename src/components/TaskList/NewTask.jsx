@@ -1,22 +1,23 @@
 import React from 'react';
 import { Box, Typography, Chip, Button } from '@mui/material';
 
-const NewTask = ({ title, date, description, priority = 'High', onAccept }) => {
+const NewTask = ({ task, onAccept }) => {
+  const { title, date, description, priority = 'High' } = task;
+
   return (
     <Box
-  sx={{
-    flexShrink: 0,
-    width: 300,
-    height: 250,
-    p: 2.5,
-    bgcolor: '#4ade80',
-    borderRadius: 3,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  }}
->
-
+      sx={{
+        flexShrink: 0,
+        width: 300,
+        height: 250,
+        p: 2.5,
+        bgcolor: '#facc15', // Yellow-ish for new tasks
+        borderRadius: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Chip
           label={priority}

@@ -1,28 +1,27 @@
 import React from 'react';
 import { Box, Typography, Chip, Button } from '@mui/material';
 
-const CompleteTask = () => {
+const CompleteTask = ({ task }) => {
   return (
     <Box
-  sx={{
-    flexShrink: 0,
-    width: 300,
-    height: 250,
-    p: 2.5,
-    bgcolor: '#60a5fa',
-    borderRadius: 3,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  }}
->
-
+      sx={{
+        flexShrink: 0,
+        width: 300,
+        height: 250,
+        p: 2.5,
+        bgcolor: '#60a5fa', // blue bg for completed
+        borderRadius: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Chip
-          label="High"
+          label={task.priority || 'Normal'}
           size="small"
           sx={{
-            bgcolor: 'error.main', // bg-red-600
+            bgcolor: 'primary.main',
             color: '#fff',
             fontSize: '0.75rem',
             px: 1.5,
@@ -30,20 +29,20 @@ const CompleteTask = () => {
             borderRadius: 1,
           }}
         />
-        <Typography variant="body2">20 Feb 2024</Typography>
+        <Typography variant="body2">{task.date}</Typography>
       </Box>
 
       <Typography variant="h6" sx={{ mt: 3, fontWeight: 600 }}>
-        Make a YouTube video
+        {task.title}
       </Typography>
 
       <Typography variant="body2" sx={{ mt: 1 }}>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus ullam libero quisquam.
+        {task.description}
       </Typography>
 
       <Box sx={{ mt: 2 }}>
-        <Button fullWidth variant="contained" color="primary">
-          Complete
+        <Button fullWidth variant="contained" color="primary" disabled>
+          Completed
         </Button>
       </Box>
     </Box>

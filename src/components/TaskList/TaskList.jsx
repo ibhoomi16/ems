@@ -1,6 +1,10 @@
-import { Box } from '@mui/material';
-import AcceptTask from './AcceptTask'; // Import the component
 import React from 'react';
+import { Box } from '@mui/material';
+import AcceptTask from './AcceptTask';
+import NewTask from './NewTask';
+import CompleteTask from './CompleteTask';
+import FailedTask from './FailedTask';
+
 const TaskList = ({ task }) => {
   return (
     <Box
@@ -15,9 +19,21 @@ const TaskList = ({ task }) => {
         px: 2,
       }}
     >
-      {task?.map((item, index) => (
-        <AcceptTask key={index} task={item} />
-      ))}
+      {task?.map((item, index) => {
+        if (item?.active) {
+          return <AcceptTask key={index} task={item} />;
+        }
+        if (item?.newTask) {
+          return <NewTask key={index} task={item} />;
+        }
+        if (item?.completed) {
+          return <CompleteTask key={index} task={item} />;
+        }
+        if (item?.failed) {
+          return <FailedTask key={index} task={item} />;
+        }
+        return null; // fallback
+      })}
     </Box>
   );
 };
