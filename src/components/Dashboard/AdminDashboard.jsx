@@ -7,29 +7,53 @@ import AllTask from '../../other/AllTask';
 const AdminDashboard = () => {
   const [employees, setEmployees] = useState([]);
 
-  useEffect(() => {
-    // Initial load of employees
+  // Load employees from localStorage
+  const fetchEmployees = () => {
     const stored = JSON.parse(localStorage.getItem('employees')) || [];
     setEmployees(stored);
+  };
+
+  useEffect(() => {
+    fetchEmployees();
   }, []);
 
   const handleCreateTask = (newTask) => {
-    const updatedEmployees = employees.map((emp) => {
+    const employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+    const updatedEmployees = employees.map(emp => {
       if (emp.firstName.toLowerCase() === newTask.assignTo.toLowerCase()) {
+        const updatedTasks = [...(emp.tasks || []), newTask];
         return {
           ...emp,
-          tasks: [...(emp.tasks || []), newTask],
+          tasks: updatedTasks,
           taskSummary: {
-            ...emp.taskSummary,
-            newTask: (emp.taskSummary?.newTask || 0) + 1,
-          },
+            newTask: updatedTasks.filter(t => t.newTask).length,
+            active: updatedTasks.filter(t => t.active).length,
+            completed: updatedTasks.filter(t => t.completed).length,
+            failed: updatedTasks.filter(t => t.failed).length,
+          }
         };
       }
       return emp;
     });
 
-    // Persist and update state
     localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const updatedEmp = updatedEmployees.find(emp =>
+      emp.firstName.toLowerCase() === newTask.assignTo.toLowerCase()
+    );
+
+    if (
+      loggedInUser?.role === 'employee' &&
+      loggedInUser?.data?.firstName.toLowerCase() === newTask.assignTo.toLowerCase()
+    ) {
+      localStorage.setItem('loggedInUser', JSON.stringify({
+        role: 'employee',
+        data: updatedEmp
+      }));
+    }
+
     setEmployees(updatedEmployees);
   };
 

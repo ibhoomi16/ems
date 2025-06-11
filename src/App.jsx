@@ -8,7 +8,7 @@ const App = () => {
   const [userRole, setUserRole] = useState(null);
   const [loggedInUserData, setLoggedInUserData] = useState(null);
 
-  const authData = useContext(AuthContext); // ✅ Hook must be called unconditionally
+  const authData = useContext(AuthContext); // must be called unconditionally
 
   useEffect(() => {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -20,16 +20,19 @@ const App = () => {
     }
   }, []);
 
-  if (!authData) return <div>Loading...</div>; // ✅ Moved after all hooks
+  if (!authData) return <div>Loading...</div>; // wait for context to load
 
   const handleLogin = (email, password) => {
     if (email === 'admin@me.com' && password === '123') {
       setUserRole('admin');
       localStorage.setItem('loggedInUser', JSON.stringify({ role: 'admin' }));
-    } else if (authData && Array.isArray(authData.employees)) {
-      const employee = authData.employees.find(
+    } else {
+      // ✅ Read fresh employee list from localStorage
+      const freshEmployees = JSON.parse(localStorage.getItem('employees')) || [];
+      const employee = freshEmployees.find(
         (e) => e.email === email && e.password === password
       );
+
       if (employee) {
         setUserRole('employee');
         setLoggedInUserData(employee);
@@ -40,8 +43,6 @@ const App = () => {
       } else {
         alert('Invalid Credentials');
       }
-    } else {
-      alert('Employee data is not available. Please try again later.');
     }
   };
 
@@ -49,7 +50,7 @@ const App = () => {
     <div>
       {!userRole && <Login handleLogin={handleLogin} />}
       {userRole === 'admin' && <AdminDashboard />}
-      {userRole === 'employee' && <EmployeeDashboard data={loggedInUserData} />}
+      {userRole === 'employee' && <EmployeeDashboard />}
     </div>
   );
 };
