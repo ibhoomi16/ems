@@ -1,11 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Box, Typography, Paper, Grid, Chip, Divider } from '@mui/material';
-import { AuthContext } from '../context/AuthProvider';
 
-const AllTask = ({ tasks: externalTasks = [] }) => {
-  const authData = useContext(AuthContext);
-  const employees = authData?.employees || [];
-
+const AllTask = ({ employees = [] }) => {
   return (
     <Box sx={{ backgroundColor: '#0f172a', p: 4, borderRadius: 2, mt: 4 }}>
       <Typography variant="h5" fontWeight="bold" color="white" mb={3}>
@@ -31,17 +27,14 @@ const AllTask = ({ tasks: externalTasks = [] }) => {
 
       <Divider sx={{ mb: 2, borderColor: '#334155' }} />
 
-      {/* Merge tasks from context and props */}
       {employees.map((emp, index) => {
-        const contextTasks = emp.tasks || [];
-        const extraTasks = externalTasks.filter(t => t.assignTo === emp.firstName);
-        const combinedTasks = [...contextTasks, ...extraTasks];
+        const tasks = emp.tasks || [];
 
         const counts = {
-          new: combinedTasks.filter(task => task.newTask).length,
-          active: combinedTasks.filter(task => task.active).length,
-          complete: combinedTasks.filter(task => task.completed).length,
-          failed: combinedTasks.filter(task => task.failed).length,
+          new: tasks.filter(task => task.newTask).length,
+          active: tasks.filter(task => task.active).length,
+          complete: tasks.filter(task => task.completed).length,
+          failed: tasks.filter(task => task.failed).length,
         };
 
         return (

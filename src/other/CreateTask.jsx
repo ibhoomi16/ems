@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Box, Typography, TextField, Button } from "@mui/material";
+import { Paper, Box, Typography, TextField, Button, Snackbar, Alert } from "@mui/material";
 
-const CreateTask = () => {
+const CreateTask = ({ onCreateTask }) => {
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [taskDate, setTaskDate] = useState('');
   const [assignTo, setAssignTo] = useState('');
   const [category, setCategory] = useState('');
-  const [task, setTask] = useState({});
+  const [error, setError] = useState('');
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const submitHandler = (e) => {
     e.preventDefault();
+
+    const employees = JSON.parse(localStorage.getItem('employees')) || [];
+    const employeeExists = employees.some(
+      emp => emp.firstName.toLowerCase() === assignTo.toLowerCase()
+    );
+
+    if (!employeeExists) {
+      setError(`No employee found with the name "${assignTo}"`);
+      return;
+    }
 
     const taskObj = {
       title: taskTitle,
@@ -24,53 +35,9 @@ const CreateTask = () => {
       completed: false,
     };
 
-    setTask(taskObj);
-
-    // Get employees from localStorage
-    let employees = JSON.parse(localStorage.getItem('employees')) || [];
-
-    // Update the relevant employee
-    const updatedEmployees = employees.map((emp) => {
-      if (emp.firstName.toLowerCase() === assignTo.toLowerCase()) {
-        const updatedTasks = emp.tasks ? [...emp.tasks, taskObj] : [taskObj];
-
-        const updatedCounts = {
-          ...emp.taskCounts,
-          newTask: (emp.taskCounts?.newTask || 0) + 1,
-        };
-
-        const updatedSummary = {
-          ...emp.taskSummary,
-          newTask: (emp.taskSummary?.newTask || 0) + 1,
-        };
-
-        return {
-          ...emp,
-          tasks: updatedTasks,
-          taskCounts: updatedCounts,
-          taskSummary: updatedSummary,
-        };
-      }
-      return emp;
-    });
-
-    // Save to localStorage
-    localStorage.setItem('employees', JSON.stringify(updatedEmployees));
-
-    // Update logged-in user if affected
-    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    const matchedUser = updatedEmployees.find(
-      emp => emp.firstName.toLowerCase() === assignTo.toLowerCase()
-    );
-
-    if (
-      loggedInUser?.data?.firstName.toLowerCase() === assignTo.toLowerCase()
-    ) {
-      localStorage.setItem(
-        "loggedInUser",
-        JSON.stringify({ ...loggedInUser, data: matchedUser })
-      );
-    }
+    // Call parent handler
+    onCreateTask?.(taskObj);
+    setSuccessOpen(true);
 
     // Reset form fields
     setTaskTitle('');
@@ -78,13 +45,8 @@ const CreateTask = () => {
     setTaskDate('');
     setAssignTo('');
     setCategory('');
+    setError('');
   };
-
-  useEffect(() => {
-    if (task.title) {
-      console.log("✅ Task Created:", task);
-    }
-  }, [task]);
 
   return (
     <Paper
@@ -105,6 +67,7 @@ const CreateTask = () => {
             <Typography variant="h6">Task Title</Typography>
             <TextField
               fullWidth
+              required
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
               sx={{ mt: 1, input: { color: 'white' } }}
@@ -114,6 +77,7 @@ const CreateTask = () => {
             <TextField
               fullWidth
               type="date"
+              required
               value={taskDate}
               onChange={(e) => setTaskDate(e.target.value)}
               sx={{ mt: 1, input: { color: 'white' } }}
@@ -122,6 +86,7 @@ const CreateTask = () => {
             <Typography variant="h6" sx={{ mt: 3 }}>Assign To</Typography>
             <TextField
               fullWidth
+              required
               value={assignTo}
               onChange={(e) => setAssignTo(e.target.value)}
               sx={{ mt: 1, input: { color: 'white' } }}
@@ -130,6 +95,7 @@ const CreateTask = () => {
             <Typography variant="h6" sx={{ mt: 3 }}>Category</Typography>
             <TextField
               fullWidth
+              required
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               sx={{ mt: 1, input: { color: 'white' } }}
@@ -141,6 +107,7 @@ const CreateTask = () => {
             <TextField
               fullWidth
               multiline
+              required
               rows={10}
               value={taskDescription}
               onChange={(e) => setTaskDescription(e.target.value)}
@@ -165,6 +132,25 @@ const CreateTask = () => {
           </Box>
         </Box>
       </form>
+
+      {/* Error Message */}
+      {error && (
+        <Box sx={{ mt: 2 }}>
+          <Alert severity="error">{error}</Alert>
+        </Box>
+      )}
+
+      {/* Success Snackbar */}
+      <Snackbar
+        open={successOpen}
+        autoHideDuration={3000}
+        onClose={() => setSuccessOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" sx={{ width: '100%' }}>
+          Task successfully created!
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };
